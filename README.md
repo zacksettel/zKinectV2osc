@@ -15,8 +15,6 @@ Address: /kinect/{bodyId: 0 - 5 }/joint/{jointId}
 Values: - float:  positionX
         - float:  positionY
         - float:  positionZ
-        - string: trackingState (Tracked, NotTracked or Inferred)
-        - string: trackingState (Tracked, NotTracked or Inferred)
 ```
 
 new message for the user position and orientation (relative to SpineMid)
@@ -30,6 +28,10 @@ Values: - float:  positionX
         - float:  quaternianY
         - float:  quaternianZ
         - float:  quaternianW
+        
+ Address: /kinect/{bodyId: 0 - 5 }/lean        
+        - float:  leanFrontRear
+        - float: leanLeftRight
 ```
 There are also a some command line argument flags
 
