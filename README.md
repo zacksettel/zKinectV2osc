@@ -16,7 +16,12 @@ Values: - float:  positionX
         - float:  positionY
         - float:  positionZ
 ```
+message protocol for hands:
 
+```sh
+Address: /kinect/{bodyId: 0 - 5 }/hands/Left or  ..../Right 
+Value - symbol:  Open, CLosed, or NotTracked
+```
 new message for the user position and orientation (relative to SpineMid)
 
 ```sh
