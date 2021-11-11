@@ -51,7 +51,8 @@ namespace zKinectV2OSC.Model.Network
             {
                 try
                 {
-                    var oscSender = new OscSender(ipAddress, int.Parse(this.port));
+                    int localPort = 0; // this way, the local port will not be bound
+                    var oscSender = new OscSender(ipAddress, localPort,  int.Parse(this.port));
                     oscSender.Connect();
                     this.oscSenders.Add(oscSender);
                     this.status += "OSC connection established on\nIP: " + ipAddress + "\nPort: " + port + "\n";
@@ -108,12 +109,40 @@ namespace zKinectV2OSC.Model.Network
                     {
                         relPos.X = joint.Value.Position.X;
                         relPos.Y = joint.Value.Position.Y;
-                        relPos.Z = joint.Value.Position.Z;  
+                        relPos.Z = joint.Value.Position.Z;
 
                         relPos -= bodyPosition;  // make joint relative to body
                         relPos.Z = -relPos.Z;  // negate this puppy to unMirror
 
-                        message = messageBuilder.BuildJointMessage(body, joint.Value, relPos, bodiesIndex);
+                        // for wrists use 6DoF
+                        if ( String.Equals(joint.Value.JointType, JointType.ElbowLeft)  || String.Equals(joint.Value.JointType, JointType.HandRight))
+                        {
+                            // process only wrists that are well tracked
+                            if (true)
+                                //(String.Equals(joint.Value.JointType, JointType.WristLeft) && body.HandLeftConfidence == TrackingConfidence.High)
+                               // ||
+                               // (String.Equals(joint.Value.JointType, JointType.WristRight) && body.HandRightConfidence == TrackingConfidence.High))
+                            {
+
+                                Quaternion jQuat = new Quaternion(body.JointOrientations[joint.Value.JointType].Orientation.X,
+                                                body.JointOrientations[joint.Value.JointType].Orientation.Y,
+                                                body.JointOrientations[joint.Value.JointType].Orientation.Z,
+                                                body.JointOrientations[joint.Value.JointType].Orientation.W);
+                                Quaternion invXqut = Quaternion.CreateFromYawPitchRoll((float)Math.PI, 0, 0); // create inverse X axix quat
+                                Quaternion jQuatInv = Quaternion.Multiply(jQuat, invXqut);   // flip it around so its not mirrored
+
+                                System.Numerics.Vector4 outRot = new System.Numerics.Vector4(-1, -1, 1, 1);  // these are the needed inverseScalers so it works well with Unity
+
+                                outRot *= new System.Numerics.Vector4(jQuatInv.X, jQuatInv.Y, jQuatInv.Z, jQuatInv.W);  // oriented for Unity3D
+
+                                message = messageBuilder.Build6DjointMessage(body, joint.Value, relPos, outRot, bodiesIndex);
+                            }
+                            // otherwise do nothing
+                        }
+                        else // 3DoF
+                        {
+                            message = messageBuilder.BuildJointMessage(body, joint.Value, relPos, bodiesIndex);
+                        }
                         this.Broadcast(message);
                         newSkelData = true;
                     }

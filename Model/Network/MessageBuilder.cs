@@ -17,6 +17,20 @@ namespace zKinectV2OSC.Model.Network
             return new OscMessage(address, position.X, position.Y, position.Z);
         }
 
+        public OscMessage BuildBodyStatusMessage(int indexId, bool state)
+        {
+            var address = String.Format("/kinect2/{0}/tracking", indexId);
+            return new OscMessage(address, state);
+        }
+        public OscMessage Build6DjointMessage(Body body, Joint joint, System.Numerics.Vector3 p, System.Numerics.Vector4 q, int indexId)
+        {
+            var address = String.Format("/kinect2/{0}/6Djoint/{1}", indexId, joint.JointType);
+
+            //System.Diagnostics.Debug.WriteLine(address);
+            return new OscMessage(address, p.X, p.Y, p.Z, q.X, q.Y, q.Z, q.W);
+        }
+
+
         public OscMessage BuildHandMessage(Body body, string key, HandState state,  int indexId)
         {
             var address = String.Format("/kinect2/{0}/hands/{1}", indexId, key);

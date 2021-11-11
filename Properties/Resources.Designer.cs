@@ -106,7 +106,7 @@ namespace zKinectV2OSC.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 12345.
+        ///   Looks up a localized string similar to 54321.
         /// </summary>
         internal static string PortNumber {
             get {

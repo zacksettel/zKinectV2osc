@@ -2,6 +2,8 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Net;
+    using System.Net.Sockets;
     using System.ComponentModel;
     using System.Diagnostics;
     using System.Globalization;
@@ -88,11 +90,11 @@
         // Define a class to receive parsed values
         class Options
         {
-            [Option('p', "port", DefaultValue = "12345",
+            [Option('p', "port", DefaultValue = "54321",
               HelpText = "oscTX port")]
             public string Port { get; set; }
 
-            [Option('i', "ip", DefaultValue ="127.0.0.1",
+            [Option('i', "ip", DefaultValue ="",
               HelpText = "oscTX address")]
             public string IpAddr { get; set; }
 
@@ -118,20 +120,37 @@
                   (HelpText current) => HelpText.DefaultParsingErrorsHandler(this, current));
             }
         }
+
+        public static string GetLocalIPAddress()
+        {
+            var host = Dns.GetHostEntry(Dns.GetHostName());
+            foreach (var ip in host.AddressList)
+            {
+                if (ip.AddressFamily == AddressFamily.InterNetwork)
+                {
+                    return ip.ToString();
+                }
+            }
+            throw new Exception("No network adapters with an IPv4 address in the system!");
+        }
+
         public MainWindow()
         {
             string ipAddress;
             string port;
             String[] args = Environment.GetCommandLineArgs();
 
-            //System.Diagnostics.Debug.WriteLine("\n\n\n\n\nGetCommandLineArgs: {0}", String.Join(", ", arguments));
+            //System.Diagnostics.Debug.WriteLine("\n\n\n\n\nGetCommandLineArgs: {0}", String.Join(", ", args));
 
             // get dafault values from app resources
             this.oscMessUpdateMS = int.Parse(zKinectV2OSC.Properties.Resources.oscUpdateRateMs);
-            ipAddress = ReadIpAddressCsv();
+            //ipAddress = ReadIpAddressCsv();
+            ipAddress = GetLocalIPAddress();
+            string[] values = ipAddress.Split('.');
+            ipAddress = values[0] + "." + values[1] + "." + values[2] + ".255";
             port = zKinectV2OSC.Properties.Resources.PortNumber;
-
-
+            //Console.Write("**************** ip: " + ipAddress);
+            System.Diagnostics.Debug.WriteLine("\n\n\n\n\n my IPaddress:"+ipAddress+"\n");
             var options = new Options();
 
             // user provided flags, update values
@@ -139,13 +158,14 @@
             {
                 // Values are available here
                 port = options.Port;
-                ipAddress = options.IpAddr;
+                if (String.Empty != options.IpAddr)   
+                    ipAddress = options.IpAddr;
                 this.depthClip = options.DepthClip;
                 this.jointTX =  (options.JointTX == 0) ? false:true;
                 this.oscMessUpdateMS = options.OscUpdateRateMs;
 
-                System.Diagnostics.Debug.WriteLine("\t\t\t ipAddress:port =  {0}:{1}", options.IpAddr, options.Port);
-                System.Diagnostics.Debug.WriteLine("\t\t\t oscUpdateRateMS =  {0}", options.OscUpdateRateMs);
+                System.Diagnostics.Debug.WriteLine("\n\t\t\t ipAddress:port =  {0}:{1}", options.IpAddr, options.Port);
+                System.Diagnostics.Debug.WriteLine("\n\t\t\t oscUpdateRateMS =  {0}", options.OscUpdateRateMs);
             }
 
 
