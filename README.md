@@ -43,23 +43,61 @@ You can enter a single IP Address or multiple, separated by commas.
 
 What OSC messages get sent?
 ---------------------------
-OSC messages are sent every frame. For each detected body, you will get a set of joints:
+The message set has been extended from the original source code. Joints are in local coordinates, relative to the SpineMid joint
+
+A new message to mark the beginnning of each frame of skeletel messages.
 
 ```sh
-Address: /bodies/{bodyId}/joints/{jointId}
+Address: /kinect2/{bodyId: 0 - 5 }/skelFrame
+```
+
+The original message protocol for joints has been modidied to the following protocal:
+
+```sh
+Address: /kinect2/{bodyId: 0 - 5 }/joint/{jointId}
 Values: - float:  positionX
         - float:  positionY
         - float:  positionZ
-        - string: trackingState (Tracked, NotTracked or Inferred)
 ```
-
-...and a pair of hands:
+message protocol for hands:
 
 ```sh
-Address: /bodies/{bodyId}/hands/{handId} (Left or Right)
-Values: - string: handState (Open, Closed, NotTracked, Unknown)
-        - string: handConfidence (High, Low)
+Address: /kinect2/{bodyId: 0 - 5 }/hands/Left or  ..../Right 
+Value - symbol:  Open, CLosed, or NotTracked
 ```
+new message for the user position and orientation (relative to SpineMid)
+
+```sh
+Address: /kinect2/{bodyId: 0 - 5 }/6dof
+Values: - float:  positionX
+        - float:  positionY
+        - float:  positionZ
+        - float:  quaternianX
+        - float:  quaternianY
+        - float:  quaternianZ
+        - float:  quaternianW
+        
+ Address: /kinect2/{bodyId: 0 - 5 }/lean        
+        - float:  leanFrontRear
+        - float: leanLeftRight
+```
+
+Command Line Argument Flags offer the following options:
+---------------------------
+
+            -p , --port, DefaultValue = 12345
+
+
+            -i, --ip, DefaultValue = 127.0.0.1 (localhost)   note that UDP broadast is available 
+
+
+            -r, --oscUpdateRateMs, DefaultValue = 50 ms
+
+
+            -d,  --depthClip", DefaultValue = 4.5 meters
+
+
+            -j, --jointTX, DefaultValue = 1 (enable/disable osc joint messages)
 
 Project dependencies
 --------------------
