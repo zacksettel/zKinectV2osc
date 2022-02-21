@@ -65,6 +65,10 @@ message protocol for hands:
 Address: /kinect2/{bodyId: 0 - 5 }/hands/Left or  ..../Right 
 Value - symbol:  Open, CLosed, or NotTracked
 ```
+
+see https://docs.microsoft.com/en-us/previous-versions/windows/kinect/dn758662(v=ieb.10)  for a complete listing of joint names 
+
+
 new message for the user position and orientation (relative to SpineMid)
 
 ```sh
